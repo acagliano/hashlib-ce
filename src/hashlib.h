@@ -32,8 +32,8 @@ typedef struct _sha256_ctx {
 // #################################
 
 typedef struct _rsa_pubkey {
-  uint8_t key[32];
-} rsa_pubkey_t;
+  uint8_t key[32];	// using a 256-bit key. It's not a full security impl., but hell... this is a calculator.
+} rsa_pubkey_t;		// this algorithm is more for teaching myself and proof of concept..
 
 typedef struct _rsa_privkey { 
   uint8_t key[32];
