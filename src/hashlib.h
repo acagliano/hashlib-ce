@@ -39,15 +39,14 @@ typedef struct _rsa_privkey {
   uint8_t key[256];
 } rsa_privkey_t;
 
-typedef union _rsa_pubkeys {
-  rsa_pubkey_t local;
-  rsa_pubkey_t remote;
-} rsa_pubkeys;
-
 typedef struct _rsa_ctx {
   rsa_privkey_t privkey;   // client encrypts outgoing traffic with this
-  rsa_pubkeys pubkey;    // client decrypts incoming traffic with this (server should generate and send)
+  rsa_pubkey_t pubkey;    // client decrypts incoming traffic with this (server should generate and send)
 } rsa_ctx;
+
+// ## @BECK = you can use the pubkey field here when *initializing* the public-key context for the remote host.
+// However, once we handshake with the remote host, the remote public key overwrites this
+// Since iirc, once we send it out, we don't need it again
 
 // ##############################
 // ####### LESSER HASHES ########
