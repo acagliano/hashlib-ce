@@ -32,11 +32,11 @@ typedef struct _sha256_ctx {
 // #################################
 
 typedef struct _rsa_pubkey {
-  uint8_t key[256];
+  uint8_t key[32];
 } rsa_pubkey_t;
 
 typedef struct _rsa_privkey { 
-  uint8_t key[256];
+  uint8_t key[32];
 } rsa_privkey_t;
 
 typedef struct _rsa_ctx {
