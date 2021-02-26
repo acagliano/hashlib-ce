@@ -185,7 +185,7 @@ void hashlib_sha256final(sha256_ctx *ctx, uint8_t* digest);
 //	RSA standard requires at least 1024-bits. Nonetheless this is here as 
 //	proof-of-concept and a learning exercise for me (and beck, as I provided him
 //	the algorithm, and a C implementation and he's doing the ASM for it.)
-//	DO NOT SENSITIVE DATA WITH THIS PROTOCOL
+//	DO NOT SEND SENSITIVE DATA WITH THIS PROTOCOL
 //	better yet, don't send sensitive data with a calculator
 //
 
