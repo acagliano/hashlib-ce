@@ -109,7 +109,7 @@ hashlib_has_crc_table:=$-1
 .calc_inner:
 	ld h,c
 	ld l,1
-	call ti._lshru
+	call ti._lshruu
 	bit 0,h
 	jr z,.calc_inner_nostep2
 	push de
@@ -436,7 +436,7 @@ sha1_transform:
 	ld bc,(ix-8)
 	ld a, (ix-5)
 	ld l,32-5
-	call ti._lshr ; a >> (32-5)
+	call ti._lshru ; a >> (32-5)
 	pop hl,de
 	call ti._lor  ; (a << 5)|(a >> (32-5))
 	pop bc,af
@@ -478,7 +478,7 @@ sha1_transform:
 	ld bc,(ix-12)
 	ld a, (ix-9)
 	ld l,32-30
-	call ti._lshr ; b >> (32-30)
+	call ti._lshru ; b >> (32-30)
 	pop hl,de
 	call ti._lor  ; (b << 30)|(b >> (32-30))
 	ld hl,(ix-8)   ; b = a
