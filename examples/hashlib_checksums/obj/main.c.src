@@ -1,0 +1,216 @@
+	section	.text,"ax",@progbits
+	assume	adl = 1
+	section	.text,"ax",@progbits
+	public	_main
+_main:
+	ld	hl, -15
+	call	__frameset
+	ld	hl, (_test_data)
+	ld	(ix + -6), hl
+	push	hl
+	call	_strlen
+	ld	(ix + -3), hl
+	pop	de
+	push	hl
+	ld	hl, (ix + -6)
+	push	hl
+	call	_hashlib_ChecksumU24
+	ld	(ix + -15), hl
+	pop	hl
+	pop	hl
+	ld	hl, (_test_data)
+	ld	de, (ix + -3)
+	push	de
+	push	hl
+	call	_hashlib_ChecksumU32
+	ld	(ix + -9), hl
+	ld	(ix + -12), de
+	pop	hl
+	pop	hl
+	ld	hl, (_test_data)
+	ld	de, (ix + -3)
+	push	de
+	push	hl
+	call	_hashlib_CRC32
+	ld	(ix + -3), hl
+	ld	(ix + -6), de
+	pop	hl
+	pop	hl
+	or	a, a
+	sbc	hl, hl
+	push	hl
+	ld	hl, (ix + -15)
+	push	hl
+	call	_int32tostr
+	pop	de
+	pop	de
+	push	hl
+	ld	hl, L_.str.2
+	push	hl
+	ld	hl, -327680
+	push	hl
+	call	_sprintf
+	pop	hl
+	pop	hl
+	pop	hl
+	ld	hl, (ix + -12)
+	push	hl
+	ld	hl, (ix + -9)
+	push	hl
+	call	_int32tostr
+	pop	de
+	pop	de
+	push	hl
+	ld	hl, L_.str.3
+	push	hl
+	ld	hl, -327680
+	push	hl
+	call	_sprintf
+	pop	hl
+	pop	hl
+	pop	hl
+	ld	hl, (ix + -6)
+	push	hl
+	ld	hl, (ix + -3)
+	push	hl
+	call	_int32tostr
+	pop	de
+	pop	de
+	push	hl
+	ld	hl, L_.str.4
+	push	hl
+	ld	hl, -327680
+	push	hl
+	call	_sprintf
+	pop	hl
+	pop	hl
+	pop	hl
+	or	a, a
+	sbc	hl, hl
+	ld	sp, ix
+	pop	ix
+	ret
+	section	.text,"ax",@progbits
+
+	section	.text,"ax",@progbits
+	public	_int32tostr
+_int32tostr:
+	ld	hl, -20
+	call	__frameset
+	ld	hl, (ix + 6)
+	ld	a, (ix + 9)
+	ld	de, 9
+	ld	(ix + -4), hl
+	ld	(ix + -1), a
+	push	de
+	call	_malloc
+	push	hl
+	pop	iy
+	pop	hl
+	lea	hl, iy + 0
+	add	hl, bc
+	or	a, a
+	sbc	hl, bc
+	jq	z, BB1_5
+	lea	hl, ix + -4
+	ld	(ix + -13), hl
+	ld	hl, (_hex_chars)
+	ld	(ix + -16), hl
+	lea	hl, iy + 7
+	ld	(ix + -7), hl
+	ld	bc, 4
+	ld	de, 0
+BB1_2:
+	push	de
+	pop	hl
+	or	a, a
+	sbc	hl, bc
+	jq	z, BB1_4
+	ld	hl, (ix + -13)
+	add	hl, de
+	ld	a, (hl)
+	ld	(ix + -20), a
+	ld	b, 4
+	call	__bshru
+	ld	(ix + -10), de
+	ld	de, 0
+	ld	e, a
+	ld	bc, (ix + -16)
+	push	bc
+	pop	hl
+	add	hl, de
+	ld	a, (hl)
+	ld	(ix + -19), iy
+	ld	iy, (ix + -7)
+	ld	(iy), a
+	ld	a, (ix + -20)
+	and	a, 15
+	ld	de, 0
+	ld	e, a
+	push	bc
+	pop	hl
+	ld	bc, 4
+	add	hl, de
+	ld	de, (ix + -10)
+	ld	a, (hl)
+	ld	(iy + -1), a
+	inc	de
+	lea	iy, iy + -2
+	ld	(ix + -7), iy
+	ld	iy, (ix + -19)
+	jq	BB1_2
+BB1_4:
+	ld	(iy + 8), 0
+BB1_5:
+	lea	hl, iy + 0
+	ld	sp, ix
+	pop	ix
+	ret
+	section	.text,"ax",@progbits
+
+	section	.rodata,"a",@progbits
+	private	L_.str
+L_.str:
+	db	"Hello World! How are you today? I am well, replies the world.",000o
+
+	section	.data,"aw",@progbits
+	public	_test_data
+_test_data:
+	dl	L_.str
+
+	section	.rodata,"a",@progbits
+	private	L_.str.1
+L_.str.1:
+	db	"0123456789ABCDEF",000o
+
+	section	.data,"aw",@progbits
+	public	_hex_chars
+_hex_chars:
+	dl	L_.str.1
+
+	section	.rodata,"a",@progbits
+	private	L_.str.2
+L_.str.2:
+	db	"checksum24: %s",012o,000o
+
+	section	.rodata,"a",@progbits
+	private	L_.str.3
+L_.str.3:
+	db	"checksum32: %s",012o,000o
+
+	section	.rodata,"a",@progbits
+	private	L_.str.4
+L_.str.4:
+	db	"crc32: %s",012o,000o
+
+	ident	"clang version 12.0.0 (https://github.com/jacobly0/llvm-project 170be88120e3aa88c20eea5615ba76b8f1d6c647)"
+	extern	_hashlib_ChecksumU32
+	extern	__Unwind_SjLj_Register
+	extern	__Unwind_SjLj_Unregister
+	extern	__frameset
+	extern	_malloc
+	extern	_sprintf
+	extern	__bshru
+	extern	_hashlib_ChecksumU24
+	extern	_strlen
+	extern	_hashlib_CRC32
