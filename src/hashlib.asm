@@ -109,7 +109,7 @@ hashlib_has_crc_table:=$-1
 .calc_inner:
 	ld h,c
 	ld l,1
-	call ti._lshruu
+	call ti._lshru
 	bit 0,h
 	jr z,.calc_inner_nostep2
 	push de
