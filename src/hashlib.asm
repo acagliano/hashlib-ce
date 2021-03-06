@@ -595,6 +595,7 @@ sha1_final:
 	push iy,iy
 	call sha1_transform
 	pop iy,hl
+.step2:
 	ld b,56
 .loop2:
 	ld (hl),0
