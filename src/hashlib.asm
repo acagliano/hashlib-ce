@@ -13,7 +13,6 @@ library "HASHLIB", 1
 	export hashlib_ChecksumU24
 	export hashlib_ChecksumU32
 	export hashlib_CRC32
-	export hashlib_SHA1
 	export sha1_init
 	export sha1_update
 	export sha1_final
@@ -177,28 +176,6 @@ hashlib_has_crc_table:=$-1
 	ret
 
 
-
-;------------------------------------------
-;void hashlib_SHA1(const uint8_t *buf, uint32_t len, uint8_t *digest);
-hashlib_SHA1:
-	ld hl,-sha1_ctx.size
-	call ti._frameset
-	pea ix-sha1_ctx.size
-	call sha1_init
-	ld hl,(ix+9)
-	ex (sp),hl
-	ld bc,(ix+6)
-	push bc,hl
-	call sha1_update
-	pop bc,de
-	ld hl,(ix+12)
-	ex (sp),hl
-	push bc
-	call sha1_final
-;	pop bc,bc ;not needed because we're already loading the stack pointer
-	ld sp,ix
-	pop ix
-	ret
 
 ;------------------------------------------
 ;void hashlib_SHA256(const uint8_t *buf, uint32_t len, uint8_t *digest);
