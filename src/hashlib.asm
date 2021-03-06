@@ -10,12 +10,13 @@ library "HASHLIB", 1
 ;------------------------------------------
 ; v1 functions
 
-export hashlib_ChecksumU24
-export hashlib_ChecksumU32
-export hashlib_CRC32
-export sha1_init
-export sha1_update
-export sha1_final
+	export hashlib_ChecksumU24
+	export hashlib_ChecksumU32
+	export hashlib_CRC32
+	export hashlib_SHA1
+	export sha1_init
+	export sha1_update
+	export sha1_final
 
 ;------------------------------------------
 ; defines
@@ -89,9 +90,9 @@ hashlib_ChecksumU32:
 ;------------------------------------------
 ;uint32_t hashlib_CRC32(const uint8_t *buf, size_t len);
 hashlib_CRC32:
-	push iy
 	ld hl,-10
 	call ti._frameset
+	push iy
 	ld a,0
 hashlib_has_crc_table:=$-1
 	or a,a
@@ -170,9 +171,9 @@ hashlib_has_crc_table:=$-1
 	jq nz,.crc_loop
 	ld hl,(ix-4)
 	ld e,(ix-1)
+	pop iy
 	ld sp,ix
 	pop ix
-	pop iy
 	ret
 
 
