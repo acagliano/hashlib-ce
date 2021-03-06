@@ -440,7 +440,7 @@ sha1_transform:
 	pop hl,de
 	call ti._lor  ; (a << 5)|(a >> (32-5))
 	pop bc,af
-	add ti._ladd ; t += (a << 5)|(a >> (32-5))
+	call ti._ladd ; t += (a << 5)|(a >> (32-5))
 	ld bc,(ix-24)
 	ld e, (ix-21)
 	call ti._ladd ; t += e
