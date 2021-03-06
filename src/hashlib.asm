@@ -16,6 +16,7 @@ export hashlib_CRC32
 export sha1_init
 export sha1_transform
 export sha1_update
+export sha1_final
 
 ;------------------------------------------
 ; defines
@@ -29,6 +30,7 @@ virtual at 0
 	.bitlen:  rb 8
 	.state:   rb 4*5
 	.k:       rb 4*4
+	.size:
 end virtual
 
 virtual at 0
@@ -37,6 +39,7 @@ virtual at 0
 	.datalen: rb 4
 	.bitlen:  rb 8
 	.state:   rb 4*8
+	.size:
 end virtual
 
 ;------------------------------------------
@@ -175,7 +178,29 @@ hashlib_has_crc_table:=$-1
 
 
 
+;------------------------------------------
 ;void hashlib_SHA1(const uint8_t *buf, uint32_t len, uint8_t *digest);
+hashlib_SHA1:
+	ld hl,-sha1_ctx.size
+	call ti._frameset
+	pea ix-sha1_ctx.size
+	call sha1_init
+	ld hl,(ix+9)
+	ex (sp),hl
+	ld bc,(ix+6)
+	push bc,hl
+	call sha1_update
+	pop bc,de
+	ld hl,(ix+12)
+	ex (sp),hl
+	push bc
+	call sha1_final
+;	pop bc,bc ;not needed because we're already loading the stack pointer
+	ld sp,ix
+	pop ix
+	ret
+
+;------------------------------------------
 ;void hashlib_SHA256(const uint8_t *buf, uint32_t len, uint8_t *digest);
 
 
@@ -544,6 +569,79 @@ sha1_update:
 sha1_final:
 	ld hl,-3
 	call ti._frameset
+	ld iy,(ix+6)
+	ld a,(iy+sha1_ctx.datalen)
+	cp a,56
+	jr nc,.step1
+	ld a,56
+	sub a,c
+	db $01 ;dummify next three bytes
+.step1:
+	ld a,64
+	sub a,c
+	ld bc,(iy+sha1_ctx.datalen)
+	lea hl,iy+sha1_ctx.data
+	add hl,bc
+	ld (hl),$80
+	inc hl
+	ld b,a
+.loop1:
+	ld (hl),0
+	inc hl
+	djnz .loop1
+	ld a,(iy+sha1_ctx.datalen)
+	cp a,56
+	jq c,.step2
+	push iy,iy
+	call sha1_transform
+	pop iy,hl
+	ld b,56
+.loop2:
+	ld (hl),0
+	inc hl
+	djnz .loop2
+	ld hl,(sha1_ctx.datalen)
+	add hl,hl
+	add hl,hl
+	add hl,hl
+	push hl
+	pea iy+sha1_ctx.bitlen
+	call _add64lu
+	pop bc,bc
+
+	lea hl,iy+sha1_ctx.bitlen
+	lea de,iy+sha1_ctx.data+63
+	ld b,8
+.loop3:
+	ld a,(hl)
+	ld (de),a
+	inc hl
+	dec de
+	djnz .loop3
+
+	push iy,iy
+	call sha1_transform
+	pop iy,bc
+
+;reverse the endian-ness of ctx->state into output hash
+	ld b,5
+	lea iy,iy+sha1_ctx.state
+	ld hl,(ix+9)
+.loop4:
+	ld a,(iy)
+	ld c,(iy+1)
+	ld d,(iy+2)
+	ld e,(iy+3)
+	lea iy,iy+4
+	ld (hl),e
+	inc hl
+	ld (hl),d
+	inc hl
+	ld (hl),c
+	inc hl
+	ld (hl),a
+	inc hl
+	djnz .loop4
 
 	ld sp,ix
 	pop ix
