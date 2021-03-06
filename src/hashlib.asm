@@ -14,7 +14,6 @@ export hashlib_ChecksumU24
 export hashlib_ChecksumU32
 export hashlib_CRC32
 export sha1_init
-export sha1_transform
 export sha1_update
 export sha1_final
 
