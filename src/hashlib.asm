@@ -701,7 +701,7 @@ _add64:
 ;output pointer to A = A + B
 _add64lu:
 	ld hl,-8
-	call __frameset
+	call ti._frameset
 	lea hl,ix-8 ;zero the temporary uint8_t*
 	xor a,a
 	ld b,8
