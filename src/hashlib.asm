@@ -329,7 +329,7 @@ sha1_transform:
 
 	ld a,20
 	ld (ix-4),a
-.loop4:
+.loop5:
 	ld hl,(ix-12)
 	ld e, (ix-9)
 	ld bc,(ix-16)
@@ -357,17 +357,17 @@ sha1_transform:
 	ld a ,(iy+sha1_ctx.k+4*2+3)
 	call .loop3sr1
 	dec (ix-4)
-	jq nz,.loop4
+	jq nz,.loop5
 
 	ld a,20
 	ld (ix-4),a
-.loop5:
+.loop6:
 	call .loop4sr1
 	ld bc,(iy+sha1_ctx.k+4*3+0)
 	ld a ,(iy+sha1_ctx.k+4*3+3)
 	call .loop3sr1
 	dec (ix-4)
-	jq nz,.loop5
+	jq nz,.loop6
 
 	ld bc,(ix-8)
 	ld a,(ix-5)
