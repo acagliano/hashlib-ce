@@ -13,9 +13,9 @@ library "HASHLIB", 1
 	export hashlib_ChecksumU24
 	export hashlib_ChecksumU32
 	export hashlib_CRC32
-	export sha1_init
-	export sha1_update
-	export sha1_final
+	export hashlib_sha1init
+	export hashlib_sha1update
+	export hashlib_sha1final
 
 ;------------------------------------------
 ; defines
@@ -186,7 +186,7 @@ hashlib_has_crc_table:=$-1
 
 ;------------------------------------------
 ;void sha1_init(SHA1_CTX *ctx);
-sha1_init:
+hashlib_sha1init:
 	pop bc,hl
 	push hl,bc
 	ld bc,sha1_ctx.datalen
@@ -199,10 +199,11 @@ sha1_init:
 
 
 ;------------------------------------------
-;void sha1_transform(SHA1_CTX *ctx, const BYTE data[]);
-sha1_transform:
+;void hashlib_sha1transform(SHA1_CTX *ctx, const BYTE data[]);
+hashlib_sha1transform:
 	ld hl,-24
 	call ti._frameset
+	push iy
 	ld hl,(ix+9)
 	ld iy,hashlib_temp
 
@@ -223,10 +224,14 @@ sha1_transform:
 	lea iy,iy+4
 	djnz .loop1
 
-	ld iy,hashlib_temp + 16*4
-	ld c,80-16
+	ld iy,hashlib_temp + 16*4 + 1
+	ld c,80-17
 .loop2:
-	lea hl,iy-3*4
+	ld hl,(iy-3*4)
+	ld e,(iy-3*4+3)
+	ld (iy+0),hl
+	ld (iy+3),e
+	lea hl,iy
 	lea de,iy-8*4
 	call .lxor
 	lea hl,iy
@@ -238,7 +243,8 @@ sha1_transform:
 	lea hl,iy
 	call .lrl
 	lea iy,iy+4
-	djnz .loop2
+	dec c
+	jr nz,.loop2
 
 
 	ld hl,(iy+sha1_ctx.state+4*0+0)
@@ -314,6 +320,7 @@ sha1_transform:
 	call ti._land ; (b & c)
 	ld a,e
 	push af,hl
+	push af,hl
 	ld hl,(ix-12)
 	ld e, (ix-9)
 	ld bc,(ix-20)
@@ -386,6 +393,7 @@ sha1_transform:
 	ld (iy+sha1_ctx.state+4*4+0),hl
 	ld (iy+sha1_ctx.state+4*4+3),e
 
+	pop iy
 	ld sp,ix
 	pop ix
 	ret
@@ -489,17 +497,18 @@ sha1_transform:
 .lxor_loop:
 	ld a,(de)
 	xor a,(hl)
-	ld (iy+0),a
+	ld (hl),a
 	inc de
 	inc hl
 	djnz .lxor_loop
 	ret
 
 ;------------------------------------------
-;void sha1_update(SHA1_CTX *ctx, const BYTE data[], uint32_t len);
-sha1_update:
+;void hashlib_sha1update(SHA1_CTX *ctx, const BYTE data[], uint32_t len);
+hashlib_sha1update:
 	ld hl,-3
 	call ti._frameset
+	push iy
 	ld iy,(ix+6)
 	or a,a
 	sbc hl,hl
@@ -521,15 +530,16 @@ sha1_update:
 	cp a,64
 	jr nz,.next
 	push iy,iy
-	call sha1_transform
+	call hashlib_sha1transform
 	pop iy
 	ld hl,512
 	ex (sp),hl
 	pea iy+sha1_ctx.bitlen
 	call _add64lu
 	pop iy,bc
-	xor a,a
-	ld (iy+sha1_ctx.datalen),a
+	or a,a
+	sbc hl,hl
+	ld (iy+sha1_ctx.datalen),hl
 .next:
 	ld hl,(ix-3)
 	ld bc,(ix+12)
@@ -537,17 +547,20 @@ sha1_update:
 	sbc hl,bc
 	jr c,.loop
 
+	pop iy
 	ld sp,ix
 	pop ix
 	ret
 
 ;------------------------------------------
-;void sha1_final(SHA1_CTX *ctx, BYTE hash[]);
-sha1_final:
+;void hashlib_sha1final(SHA1_CTX *ctx, BYTE hash[]);
+hashlib_sha1final:
 	ld hl,-3
 	call ti._frameset
+	push iy
 	ld iy,(ix+6)
 	ld a,(iy+sha1_ctx.datalen)
+	ld c,a
 	cp a,56
 	jr nc,.step1
 	ld a,56
@@ -570,7 +583,7 @@ sha1_final:
 	cp a,56
 	jq c,.step2
 	push iy,iy
-	call sha1_transform
+	call hashlib_sha1transform
 	pop iy,hl
 .step2:
 	ld b,56
@@ -598,7 +611,7 @@ sha1_final:
 	djnz .loop3
 
 	push iy,iy
-	call sha1_transform
+	call hashlib_sha1transform
 	pop iy,bc
 
 ;reverse the endian-ness of ctx->state into output hash
@@ -621,6 +634,7 @@ sha1_final:
 	inc hl
 	djnz .loop4
 
+	pop iy
 	ld sp,ix
 	pop ix
 	ret
