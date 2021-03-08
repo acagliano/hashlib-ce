@@ -18,22 +18,22 @@
 
 /* Other available headers */
 
-uint8_t y = 0;
+const char *hex_chars = "0123456789ABCDEF";
 
+char *digesttostr(uint8_t *num);
+char *int32tostr(uint32_t num);
 
 int main(void){
-    int elapsed;
-    int size, size_blk1, size_blk2;
+    int elapsed, i, size, size_blk1, size_blk2;
+	char *s;
     uint8_t *ptr;
     uint8_t sha1[SHA1_DIGEST_LEN];
     sha1_ctx sha1_context;
     uint8_t sha256[SHA256_DIGEST_LEN];
-    uint8_t i;
     uint32_t crc;
     ti_var_t f;
     ti_CloseAll();
-    f = ti_OpenVar("DEMO", "r", TI_PPRGM_TYPE);
-    if(!f) {
+    if (!(f = ti_OpenVar("DEMO", "r", TI_PPRGM_TYPE))){ //Change "DEMO" and TI_PPRGM_TYPE to test on a different variable
         dbg_sprintf(dbgout, "File IO Err");
         return 1;
     }
@@ -50,9 +50,11 @@ int main(void){
     timer_Enable(1, TIMER_32K, TIMER_NOINT, TIMER_UP);
     crc = hashlib_CRC32(ptr, size);
     elapsed = timer_GetSafe(1, TIMER_UP);
-	gfx_PrintStringXY("CRC32 time:", 1, 11);
+	gfx_PrintStringXY("CRC32 time: ", 1, 11);
     gfx_PrintInt(elapsed, 0);
-    
+	gfx_PrintStringXY("CRC32: ", 1, 21);
+	gfx_PrintString(int32tostr(crc));
+
     // Time SHA1
     timer_Disable(1);
     timer_Set(1, 0);
@@ -61,9 +63,16 @@ int main(void){
     hashlib_sha1update(&sha1_context, ptr, size);
     hashlib_sha1final(&sha1_context, &sha1);
     elapsed = timer_GetSafe(1, TIMER_UP);
-	gfx_PrintStringXY("SHA1 time:", 1, 21);
+	gfx_PrintStringXY("SHA1 time: ", 1, 41);
     gfx_PrintInt(elapsed, 0);
-    
+	gfx_PrintStringXY("SHA1: ", 1, 51);
+	gfx_SetTextXY(1, 61);
+	s = digesttostr(&sha1);
+	for (i=0; i<40; i++){
+		if (gfx_GetTextX()>300)
+			gfx_SetTextXY(1, gfx_GetTextY()+9);
+		gfx_PrintChar(s[i]);
+    }
     // Time SHA256
    /* timer_Disable(1);
     timer_Set(1, 0);
@@ -77,3 +86,35 @@ int main(void){
 	gfx_End();
     return 0;
 }
+
+/* Utility function for converting sha1 digests to hex strings */
+char *digesttostr(uint8_t *num){
+	char *buf;
+	uint8_t *ptr;
+	int i;
+	if (!(buf = malloc(41))) return 0;
+	ptr = (uint8_t*)&num;
+	for (i=0; i<20; i++){
+		buf[i*2 + 0] = hex_chars[(*ptr)>>4];
+		buf[i*2 + 1] = hex_chars[(*ptr++)&15];
+	}
+	buf[i*2] = 0;
+	return buf;
+}
+
+/* Utility function for converting unsigned 32 bit integers to hex strings */
+char *int32tostr(uint32_t num){
+	char *buf;
+	uint8_t *ptr;
+	int i;
+	if (!(buf = malloc(9))) return 0;
+	ptr = (uint8_t*)&num;
+	buf = &buf[8];
+	for (i=0; i<4; i++){
+		*--buf = hex_chars[(*ptr)>>4];
+		*--buf = hex_chars[(*ptr++)&15];
+	}
+	buf[8] = 0;
+	return buf;
+}
+
