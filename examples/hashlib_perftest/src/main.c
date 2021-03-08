@@ -32,7 +32,7 @@ int main(void){
     uint32_t crc;
     ti_var_t f;
     ti_CloseAll();
-    f = ti_OpenVar("VAPOR", "r", TI_PPRGM_TYPE);
+    f = ti_OpenVar("DEMO", "r", TI_PPRGM_TYPE);
     if(!f) {
         dbg_sprintf(dbgout, "File IO Err");
         return 1;
