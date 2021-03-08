@@ -25,7 +25,6 @@ char *int32tostr(uint32_t num);
 
 int main(void){
     int elapsed, i, size, size_blk1, size_blk2;
-	char *s;
     uint8_t *ptr;
     uint8_t sha1[SHA1_DIGEST_LEN];
     sha1_ctx sha1_context;
@@ -66,13 +65,7 @@ int main(void){
 	gfx_PrintStringXY("SHA1 time: ", 1, 41);
     gfx_PrintInt(elapsed, 0);
 	gfx_PrintStringXY("SHA1: ", 1, 51);
-	gfx_SetTextXY(1, 61);
-	s = digesttostr(&sha1);
-	for (i=0; i<40; i++){
-		if (gfx_GetTextX()>300)
-			gfx_SetTextXY(1, gfx_GetTextY()+9);
-		gfx_PrintChar(s[i]);
-    }
+	gfx_PrintStringXY(digesttostr(&sha1), 1, 61);
     // Time SHA256
    /* timer_Disable(1);
     timer_Set(1, 0);
