@@ -122,11 +122,12 @@ void hashlib_sha1final(sha1_ctx *ctx, uint8_t* digest);
 //  len = length of data to hash
 //  digest = pointer to buffer to write digest
 
-#define hashlib_SHA1(ctx, buf, len, digest) \
-        hashlib_sha1init((ctx)); \
-        hashlib_sha1update((ctx), (buf), (len)); \
-        hashlib_sha1final((ctx), (digest));
-
+static void hashlib_SHA1(uint8_t* buf, size_t len, uint8_t* digest) {
+	sha1_ctx ctx;
+	hashlib_sha1init(&ctx);
+	hashlib_sha1update(&ctx, buf, len);
+	hashlib_sha1final(&ctx, digest);
+}
 
 // ############################
 // ###### SHA256 HASHING ######
