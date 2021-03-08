@@ -246,7 +246,7 @@ hashlib_sha1transform:
 	dec c
 	jr nz,.loop2
 
-
+	ld iy,(ix+6)
 	ld hl,(iy+sha1_ctx.state+4*0+0)
 	ld e, (iy+sha1_ctx.state+4*0+3)
 	ld (ix-8), hl
@@ -272,7 +272,6 @@ hashlib_sha1transform:
 	ld (ix-24), hl
 	ld (ix-21), e
 
-	ld iy,(ix+6)
 	ld a,20
 	ld (ix-4),a
 	or a,a
@@ -536,7 +535,7 @@ hashlib_sha1update:
 	ex (sp),hl
 	pea iy+sha1_ctx.bitlen
 	call _add64lu
-	pop iy,bc
+	pop bc,bc
 	or a,a
 	sbc hl,hl
 	ld (iy+sha1_ctx.datalen),hl
@@ -558,6 +557,7 @@ hashlib_sha1final:
 	ld hl,-3
 	call ti._frameset
 	push iy
+
 	ld iy,(ix+6)
 	ld a,(iy+sha1_ctx.datalen)
 	ld c,a
