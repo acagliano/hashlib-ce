@@ -567,7 +567,7 @@ hashlib_sha1final:
 	sub a,c
 	db $01 ;dummify next three bytes
 .step1:
-	ld a,64
+	ld a,65
 	sub a,c
 	ld bc,(iy+sha1_ctx.datalen)
 	lea hl,iy+sha1_ctx.data
