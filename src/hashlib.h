@@ -91,7 +91,7 @@ uint32_t hashlib_CRC32(const uint8_t *buf, size_t len);
 // on what your use case is. 
 //
 // hashlib_sha1init()	\
-// hashlib_sha1update()	|	Async Hashing
+// hashlib_sha1update()	|	Multi-Pass Hashing
 // hashlib_sha1final()	/
 //
 // In the above method, you call hashlib_sha1init on a pre-declared sha1_ctx structure to set the defaults.
