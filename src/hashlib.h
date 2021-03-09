@@ -135,7 +135,6 @@ void hashlib_sha1final(sha1_ctx *ctx, uint8_t* digest);
 // One-Shot SHA-1 Computation
 //
 // # Inputs #
-//  ctx = pointer to an SHA1_CTX
 //  buf = pointer to data to hash
 //  len = length of data to hash
 //  digest = pointer to buffer to write digest
