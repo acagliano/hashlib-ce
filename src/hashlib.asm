@@ -574,17 +574,20 @@ hashlib_sha1final:
 	add hl,bc
 	ld (hl),$80
 	inc hl
+	dec a
+	jr z,.dontloop1
 	ld b,a
 .loop1:
 	ld (hl),0
 	inc hl
 	djnz .loop1
+.dontloop1:
 	ld a,(iy+sha1_ctx.datalen)
 	cp a,56
 	jq c,.step2
 	push iy,iy
 	call hashlib_sha1transform
-	pop iy,hl
+	pop bc,bc
 .step2:
 	ld b,56
 .loop2:
@@ -612,7 +615,7 @@ hashlib_sha1final:
 
 	push iy,iy
 	call hashlib_sha1transform
-	pop iy,bc
+	pop bc,bc
 
 ;reverse the endian-ness of ctx->state into output hash
 	ld b,5
