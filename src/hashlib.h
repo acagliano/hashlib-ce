@@ -86,6 +86,24 @@ uint32_t hashlib_CRC32(const uint8_t *buf, size_t len);
 // ##########################
 // ###### SHA1 HASHING ######
 // ##########################
+//
+// There are two ways to use the SHA-1 hashing algorithms, and what method you choose depends
+// on what your use case is. 
+//
+// hashlib_sha1init()	\
+// hashlib_sha1update()	|	Async Hashing
+// hashlib_sha1final()	/
+//
+// In the above method, you call hashlib_sha1init on a pre-declared sha1_ctx structure to set the defaults.
+// If you do not call hashlib_sha1init, your hash will be incorrect.
+// You can then call hashlib_sha1update whenever you have a new block of data to hash.
+// You can then call hashlib_sha1final when you are done and want to render your hash.
+//
+// hashlib_SHA1()	|	Single-Pass Hashing
+//
+// The above method is an optional static function wrapper that you can call if you are sure that the entire
+// block of data you need to hash is available to you and in one place, such as an appvar or program or other
+// variable. In this case, you do not need to initialize or declare your sha1 context; it is all handled in the wrapper.
 
 // Init Context for SHA1
 //
@@ -168,11 +186,12 @@ void hashlib_sha256final(sha256_ctx *ctx, uint8_t* digest);
 //  len = length of data to hash
 //  digest = pointer to buffer to write digest
 
-#define hashlib_SHA256(ctx, buf, len, digest) \
-        hashlib_sha256init((ctx)); \
-        hashlib_sha256update((ctx), (buf), (len)); \
-        hashlib_sha256final((ctx), (digest));
-
+static void hashlib_SHA256(uint8_t* buf, size_t len, uint8_t* digest) {
+	sha256_ctx ctx;
+	hashlib_sha256init(&ctx);
+	hashlib_sha256update(&ctx, buf, len);
+	hashlib_sha256final(&ctx, digest);
+}
 
 // ######################
 // ###### RSA-256  ######
